@@ -1,0 +1,251 @@
+         CODIGO C++
+
+     #include <iostream>
+using namespace std;
+
+struct NodoDoble {
+    string valor;
+    NodoDoble* sig;
+    NodoDoble* ant;
+
+    NodoDoble(string v) {
+        valor = v;
+        sig = nullptr;
+        ant = nullptr;
+    }
+};
+
+  class ListaDoble {
+  private:
+    NodoDoble* cabeza;
+    NodoDoble* cola;
+
+    public:
+    ListaDoble() {
+        cabeza = nullptr;
+        cola = nullptr;
+    }
+
+    void insertarInicio(string valor) {
+        NodoDoble* nuevo = new NodoDoble(valor);
+
+        if (cabeza == nullptr) {
+            cabeza = cola = nuevo;
+        } else {
+            nuevo->sig = cabeza;
+            cabeza->ant = nuevo;
+            cabeza = nuevo;
+        }
+    }
+
+    void insertarFinal(string valor) {
+        NodoDoble* nuevo = new NodoDoble(valor);
+
+        if (cola == nullptr) {
+            cabeza = cola = nuevo;
+        } else {
+            nuevo->ant = cola;
+            cola->sig = nuevo;
+            cola = nuevo;
+        }
+    }
+
+    void eliminarInicio() {
+        if (cabeza == nullptr) return;
+
+        NodoDoble* temp = cabeza;
+
+        if (cabeza == cola) {
+            cabeza = cola = nullptr;
+        } else {
+            cabeza = cabeza->sig;
+            cabeza->ant = nullptr;
+        }
+
+        delete temp;
+    }
+
+    void eliminarFinal() {
+        if (cola == nullptr) return;
+
+        NodoDoble* temp = cola;
+
+        if (cabeza == cola) {
+            cabeza = cola = nullptr;
+        } else {
+            cola = cola->ant;
+            cola->sig = nullptr;
+        }
+
+        delete temp;
+    }
+
+    void eliminarNodo(NodoDoble* nodo) {
+        if (nodo == nullptr) return;
+
+        if (nodo == cabeza) {
+            eliminarInicio();
+        } else if (nodo == cola) {
+            eliminarFinal();
+        } else {
+            nodo->ant->sig = nodo->sig;
+            nodo->sig->ant = nodo->ant;
+            delete nodo;
+        }
+    }
+
+    NodoDoble* buscar(string valor) {
+        NodoDoble* actual = cabeza;
+
+        while (actual != nullptr) {
+            if (actual->valor == valor)
+                return actual;
+            actual = actual->sig;
+        }
+
+        return nullptr;
+    }
+
+    void recorrerAdelante() {
+        NodoDoble* actual = cabeza;
+        while (actual != nullptr) {
+            cout << actual->valor << " -> ";
+            actual = actual->sig;
+        }
+        cout << "null\n";
+    }
+
+    void recorrerAtras() {
+        NodoDoble* actual = cola;
+        while (actual != nullptr) {
+            cout << actual->valor << " -> ";
+            actual = actual->ant;
+        }
+        cout << "null\n";
+    }
+
+    // getters
+    NodoDoble* getCabeza() { return cabeza; }
+    NodoDoble* getCola() { return cola; }
+};
+
+// Playlist usando lista doble
+class Playlist {
+private:
+    ListaDoble lista;
+    NodoDoble* actual;
+
+public:
+    Playlist() {
+        actual = nullptr;
+    }
+
+    // agregar canción
+    void agregarCancion(string nombre) {
+        lista.insertarFinal(nombre);
+
+        if (actual == nullptr) {
+            actual = lista.getCabeza();
+        }
+    }
+
+    // siguiente
+    void siguiente() {
+        if (actual == nullptr) return;
+
+        if (actual->sig == nullptr) {
+            cout << "Fin de playlist\n";
+        } else {
+            actual = actual->sig;
+            cout << "Reproduciendo: " << actual->valor << endl;
+        }
+    }
+
+    // anterior
+    void anterior() {
+        if (actual == nullptr) return;
+
+        if (actual->ant == nullptr) {
+            cout << "Inicio de playlist\n";
+        } else {
+            actual = actual->ant;
+            cout << "Reproduciendo: " << actual->valor << endl;
+        }
+    }
+
+    //  eliminar actual
+    void eliminarActual() {
+        if (actual == nullptr) return;
+
+        NodoDoble* temp = actual;
+
+        // decidir a dónde moverse
+        if (actual->sig != nullptr) {
+            actual = actual->sig;
+        } else {
+            actual = actual->ant;
+        }
+
+        lista.eliminarNodo(temp);
+
+        if (actual != nullptr)
+            cout << "Ahora suena: " << actual->valor << endl;
+        else
+            cout << "Playlist vacía\n";
+    }
+
+    // mostrar playlist
+    void mostrarPlaylist() {
+        NodoDoble* temp = lista.getCabeza();
+
+        while (temp != nullptr) {
+            if (temp == actual)
+                cout << "[" << temp->valor << "] ";
+            else
+                cout << temp->valor << " ";
+
+            temp = temp->sig;
+        }
+        cout << endl;
+    }
+};
+
+// ejecucion
+int main() {
+    Playlist p;
+
+    // insertar canciones
+    p.agregarCancion("Billie Jin");
+    p.agregarCancion("I Want You Back");
+    p.agregarCancion("Whos Lovin You");
+    p.agregarCancion("Beat It");
+
+    cout << "Playlist inicial:\n";
+    p.mostrarPlaylist();
+
+    cout << "\nAvanzar:\n";
+    p.siguiente();
+    p.siguiente();
+
+    cout << "\nRetroceder:\n";
+    p.anterior();
+
+    cout << "\nEliminar actual:\n";
+    p.eliminarActual();
+
+    cout << "\nPlaylist final:\n";
+    p.mostrarPlaylist();
+
+    return 0;
+}
+
+
+---
+
+**Cómo se mantiene consistente actual?**
+
+   -Siempre apunta a un nodo valido, si se elimina intenta moverse al siguiente y si no existe, al anterior o hasta que la lista quede vacia = nullptr.
+
+
+
+
